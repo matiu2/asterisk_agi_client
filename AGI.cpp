@@ -23,15 +23,16 @@ int Protocol::getResult() {
     // code result=0 [data]
     log << "getting result: ";
     Code code;
-    in >> code;
+    in >> code >> std::ws;
     log << code << std::endl << std::flush;
     if (code != 200)
         throw BadCode(code);
     std::string resultLiteral;
     std::getline(in, resultLiteral, '=');
     if (resultLiteral != "result") {
-        std::stringstream msg("Expected to find 'result' after code but got '");
-        msg << resultLiteral << "' instead";
+        std::stringstream msg;
+        msg << "Expected to find 'result' after code but got '"
+            << resultLiteral << "' instead";
         throw BadParse(msg.str());
     }
     int result;
@@ -83,8 +84,9 @@ void Protocol::readConfig() {
             log << "'" << *setting->second << "'" << std::endl << std::flush;
         } else {
             log << "Could not find setting for " << name << std::endl << std::flush;
-            std::stringstream msg("No setting found for '");
-            msg << name << "'";
+            std::stringstream msg;
+            msg << "No setting found for '"
+                << name << "'";
             throw BadParse(msg.str());
         }
     }
@@ -96,8 +98,8 @@ void Protocol::answer() {
     int result = getResult();
     log << "Result: " << result << std::endl << std::flush;
     if (result != 0) {
-        std::stringstream msg("ANSWER command needs a result of 0, but got: ");
-        msg << result;
+        std::stringstream msg;
+        msg << "ANSWER command needs a result of 0, but got: " << result;
         throw BadResult(msg.str());
     }
 }
@@ -108,8 +110,9 @@ Protocol::ChannelStatus Protocol::channelStatus(const std::string& channelName) 
     int result = getResult();
     log << "Result: " << result << std::endl << std::flush;
     if ((result == -1) || (result > ChannelStatus::LAST))  {
-        std::stringstream msg("CHANNEL STATUS command needs a result betweeen 0 and ");
-        msg << ChannelStatus::LAST << ", but got " << result << " instead";
+        std::stringstream msg;
+        msg << "CHANNEL STATUS command needs a result betweeen 0 and "
+            << ChannelStatus::LAST << ", but got " << result << " instead";
         throw BadResult(msg.str());
     }
     return (ChannelStatus) result;
