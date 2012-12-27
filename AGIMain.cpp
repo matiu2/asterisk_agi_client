@@ -3,7 +3,7 @@
 #include <fstream>
 
 int main(int, char**) {
-    std::fstream log("agi.log", std::ios_base::out);
+    std::fstream log("agi.log", std::ios_base::out | std::ios_base::app);
     AGI::Protocol a(std::cin, std::cout, log);
     a.readConfig();
     const AGI::Config& config(a.config());

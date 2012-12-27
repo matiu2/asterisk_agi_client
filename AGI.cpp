@@ -42,7 +42,7 @@ int Protocol::getResult() {
 
 void Protocol::readConfig() {
     log << "Reading Config..." << std::endl << std::flush;
-    static std::map<std::string, std::string*>
+    static std::unordered_map<std::string, std::string*>
         settings {
             {"agi_request", &_config.request},
             {"agi_channel", &_config.channel},
@@ -198,6 +198,18 @@ Digit Protocol::controlStreamFile(
         throw BadResult("CONTROL STREAM FILE got result of -1");
     else
         return result;
+}
+
+void Protocol::databaseDel(const std::string& family, const std::string& key) {
+    log << "DATABASE DEL " << family << ' ' << key << "..." << std::flush;
+    out << "DATABASE DEL " << family << ' ' << key << '\n';
+    int result = getResult();
+    log << "Result: " << result << std::endl << std::flush;
+    if (result != 0) {
+        std::stringstream msg;
+        msg << "DATABASE DEL " << family << ' ' << key << " needs a result of 0, but got: " << result;
+        throw BadResult(msg.str());
+    }
 }
 
 }

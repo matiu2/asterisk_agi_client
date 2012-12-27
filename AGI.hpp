@@ -8,19 +8,19 @@ namespace AGI {
 typedef unsigned short Code;
 typedef unsigned char Digit;
 
-struct Error : std::logic_error {
-    Error(const std::string& msg) : std::logic_error(msg) {}
+struct Error : std::runtime_error {
+    Error(const std::string& msg) : std::runtime_error(msg) {}
 };
 
-struct BadParse : std::logic_error {
-    BadParse(const std::string& msg) : std::logic_error(msg) {}
+struct BadParse : Error {
+    BadParse(const std::string& msg) : Error(msg) {}
 };
 
-struct BadResult : std::logic_error {
-    BadResult(const std::string& msg) : std::logic_error(msg) {}
+struct BadResult : Error {
+    BadResult(const std::string& msg) : Error(msg) {}
 };
 
-struct BadCode : std::logic_error {
+struct BadCode : Error {
     static const std::map<Code, std::string> code2msg;
     std::string doCode2Msg(Code aCode) {
         auto found = code2msg.find(aCode);
@@ -33,7 +33,7 @@ struct BadCode : std::logic_error {
         }
     }
     Code code;
-    BadCode(Code aCode) : std::logic_error(doCode2Msg(aCode)), code(aCode) {}
+    BadCode(Code aCode) : Error(doCode2Msg(aCode)), code(aCode) {}
 };
 
 struct Config {
@@ -57,8 +57,6 @@ struct Config {
     std::string enhanced;
     std::string accountcode;
     std::string threadid;
-    template <std::string& dest>
-    void set(const std::string& value) { dest = value; }
 };
 
 class Protocol {
@@ -93,6 +91,7 @@ public:
         char rewchar='#',
         char pausechar=0
     );
+    void databaseDel(const std::string& family, const std::string& key);
     
     const Config& config() { return _config; }
     
