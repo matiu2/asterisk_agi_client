@@ -28,8 +28,8 @@ int Protocol::getResult() {
     if (code != 200)
         throw BadCode(code);
     std::string resultLiteral;
-    getline(in, resultLiteral, '=');
-    if (resultLiteral != "resultLiteral=") {
+    std::getline(in, resultLiteral, '=');
+    if (resultLiteral != "result") {
         std::stringstream msg("Expected to find 'result' after code but got '");
         msg << resultLiteral << "' instead";
         throw BadParse(msg.str());
@@ -67,14 +67,14 @@ void Protocol::readConfig() {
     while (true) {
         // Read in a line
         std::string line1;
-        getline(in, line1);
+        std::getline(in, line1);
         // Break on a blank lene
         if (line1.empty())
             break; 
         std::stringstream line(line1);
         // Read in the config item name
         std::string name;
-        getline(line, name, ':');
+        std::getline(line, name, ':');
         // Find which config storage operation to perform
         auto setting = settings.find(name);
         if (setting != settings.end()) {
