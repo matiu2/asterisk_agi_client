@@ -1,21 +1,22 @@
 #include "AGI.hpp"
 #include <iostream>
+#include <fstream>
 
 int main(int, char**) {
     AGI::Protocol a(std::cin, std::cout);
     a.readConfig();
     const AGI::Config& config(a.config());
-    using std::cerr;
+    std::fstream log("agi.log", std::ios_base::out);
     using std::endl;
-    cerr << "agi_request: " << config.request << endl;
-    cerr << "agi_channel: " << config.channel << endl;
-    cerr << "agi_lang: " << config.language << endl;
-    cerr << "agi_type: " << config.type << endl;
-    cerr << "agi_callerid: " << config.callerid << endl;
-    cerr << "agi_dnid: " << config.dnid << endl;
-    cerr << "agi_context: " << config.context << endl;
-    cerr << "agi_extension: " << config.extension << endl;
-    cerr << "agi_priority: " << config.priority << endl;
+    log << "agi_request: " << config.request << endl;
+    log << "agi_channel: " << config.channel << endl;
+    log << "agi_lang: " << config.language << endl;
+    log << "agi_type: " << config.type << endl;
+    log << "agi_callerid: " << config.callerid << endl;
+    log << "agi_dnid: " << config.dnid << endl;
+    log << "agi_context: " << config.context << endl;
+    log << "agi_extension: " << config.extension << endl;
+    log << "agi_priority: " << config.priority << endl;
     a.answer();
-    std::cerr << "Channel status: " << a.channelStatus("fun channel");
+    log << "Channel status: " << a.channelStatus("fun channel");
 }
