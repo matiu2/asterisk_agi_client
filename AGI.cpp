@@ -80,7 +80,7 @@ void Protocol::readConfig() {
         if (setting != settings.end()) {
             log << "Reading setting for '" << name << "'..." << std::flush;
             line >> *setting->second;
-            log << "done" << std::endl << std::flush;
+            log << "'" << *setting->second << "'" << std::endl << std::flush;
         } else {
             log << "Could not find setting for " << name << std::endl << std::flush;
             std::stringstream msg("No setting found for '");
