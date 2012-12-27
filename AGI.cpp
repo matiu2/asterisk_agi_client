@@ -106,7 +106,7 @@ void Protocol::answer() {
 
 Protocol::ChannelStatus Protocol::channelStatus(const std::string& channelName) {
     log << "CHANNEL STATUS " << channelName << "..." << std::flush;
-    out << "CHANNEL STATUS " << channelName;
+    out << "CHANNEL STATUS " << channelName << '\n';
     int result = getResult();
     log << "Result: " << result << std::endl << std::flush;
     if ((result == -1) || (result > ChannelStatus::LAST))  {
