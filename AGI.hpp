@@ -77,9 +77,10 @@ public:
 private:
     std::istream& in;
     std::ostream& out;
+    std::ostream& log;
     Config _config;
 public:
-    Protocol(std::istream& aIn, std::ostream& aOut) : in(aIn), out(aOut) {}
+    Protocol(std::istream& aIn, std::ostream& aOut, std::ostream& aLog) : in(aIn), out(aOut), log(aLog) {}
     int getResult();
     void readConfig();
     void answer();

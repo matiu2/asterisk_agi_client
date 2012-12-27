@@ -21,8 +21,10 @@ int Protocol::getResult() {
     // 200
     // Single line response is just
     // code result=0 [data]
+    log << "getting result: ";
     Code code;
     in >> code;
+    log << code << std::endl << std::flush;
     if (code != 200)
         throw BadCode(code);
     std::string resultLiteral;
@@ -38,6 +40,7 @@ int Protocol::getResult() {
 }
 
 void Protocol::readConfig() {
+    log << "Reading Config..." << std::endl << std::flush;
     static std::map<std::string, std::string*>
         settings {
             {"agi_request", &_config.request},
@@ -75,8 +78,11 @@ void Protocol::readConfig() {
         // Find which config storage operation to perform
         auto setting = settings.find(name);
         if (setting != settings.end()) {
+            log << "Reading setting for '" << name << "'..." << std::flush;
             line >> *setting->second;
+            log << "done" << std::endl << std::flush;
         } else {
+            log << "Could not find setting for " << name << std::endl << std::flush;
             std::stringstream msg("No setting found for '");
             msg << name << "'";
             throw BadParse(msg.str());
@@ -85,8 +91,10 @@ void Protocol::readConfig() {
 }
 
 void Protocol::answer() {
+    log << "Sending 'answer' command..." << std::flush;
     out << "ANSWER\n";
     int result = getResult();
+    log << "Result: " << result << std::endl << std::flush;
     if (result != 0) {
         std::stringstream msg("ANSWER command needs a result of 0, but got: ");
         msg << result;
@@ -95,8 +103,10 @@ void Protocol::answer() {
 }
 
 Protocol::ChannelStatus Protocol::channelStatus(const std::string& channelName) {
+    log << "CHANNEL STATUS " << channelName << "..." << std::flush;
     out << "CHANNEL STATUS " << channelName;
     int result = getResult();
+    log << "Result: " << result << std::endl << std::flush;
     if ((result == -1) || (result > ChannelStatus::LAST))  {
         std::stringstream msg("CHANNEL STATUS command needs a result betweeen 0 and ");
         msg << ChannelStatus::LAST << ", but got " << result << " instead";
@@ -140,6 +150,7 @@ Digit Protocol::controlStreamFile(
      *
      **/
     out << "CONTROL STREAM FILE " << filename << ' ';
+    log << "CONTROL STREAM FILE " << filename << ' ';
     if (!digits.empty())
         for (auto digit : digits)
             if (digit < 10)
@@ -162,17 +173,24 @@ Digit Protocol::controlStreamFile(
     else if ((skipms > 0))
         extraArgs = 1;
     // Push out extra args
-    if (extraArgs--)
+    if (extraArgs--) {
+        log << ' ' << skipms;
         out << ' ' << skipms;
-    if (extraArgs--)
+    } if (extraArgs--) {
+        log << ' ' << ffchar;
         out << ' ' << ffchar;
-    if (extraArgs--)
+    } if (extraArgs--) {
+        log << ' ' << rewchar;
         out << ' ' << rewchar;
-    if (extraArgs--)
+    } if (extraArgs--) {
+        log << ' ' << pausechar;
         out << ' ' << pausechar;
+    }
+    log << "..." << std::flush;
     out << '\n';
     // Read the reply
     int result = getResult();
+    log << "Result: " << result << std::endl << std::flush;
     if (result == -1)
         throw BadResult("CONTROL STREAM FILE got result of -1");
     else

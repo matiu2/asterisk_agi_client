@@ -3,10 +3,10 @@
 #include <fstream>
 
 int main(int, char**) {
-    AGI::Protocol a(std::cin, std::cout);
+    std::fstream log("agi.log", std::ios_base::out);
+    AGI::Protocol a(std::cin, std::cout, log);
     a.readConfig();
     const AGI::Config& config(a.config());
-    std::fstream log("agi.log", std::ios_base::out);
     using std::endl;
     log << "agi_request: " << config.request << endl;
     log << "agi_channel: " << config.channel << endl;
