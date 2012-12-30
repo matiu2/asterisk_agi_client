@@ -3,6 +3,7 @@
 #include <fstream>
 
 int main(int, char**) {
+    try {
     fstream log("agi.log", std::ios_base::out | std::ios_base::app);
     Protocol a(std::cin, std::cout, log);
     a.readConfig();
@@ -23,4 +24,8 @@ int main(int, char**) {
 a.hangupcurrentchanel();
 log.close();
 exit(0);
+    }
+catch( exception e ) {
+       // your handler
+    }
 }
