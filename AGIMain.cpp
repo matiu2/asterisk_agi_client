@@ -3,20 +3,24 @@
 #include <fstream>
 
 int main(int, char**) {
-    std::fstream log("agi.log", std::ios_base::out | std::ios_base::app);
-    AGI::Protocol a(std::cin, std::cout, log);
+    fstream log("agi.log", std::ios_base::out | std::ios_base::app);
+    Protocol a(std::cin, std::cout, log);
     a.readConfig();
-    const AGI::Config& config(a.config());
-    using std::endl;
-    log << "agi_request: " << config.request << endl;
-    log << "agi_channel: " << config.channel << endl;
-    log << "agi_lang: " << config.language << endl;
-    log << "agi_type: " << config.type << endl;
-    log << "agi_callerid: " << config.callerid << endl;
-    log << "agi_dnid: " << config.dnid << endl;
-    log << "agi_context: " << config.context << endl;
-    log << "agi_extension: " << config.extension << endl;
-    log << "agi_priority: " << config.priority << endl;
+
+    log<<a;
     a.answer();
-    log << "Channel status: " << a.channelStatus("fun channel");
+    log<<" \n controlStreamFile\n"<<flush;
+
+
+    log<<" \n now: say number 1111\n"<<flush;
+    a.controlSayNumber(111);
+    log<< "Channel status: " << a.currentchannelStatus()<<endl<<flush;
+       log<<" \nnow:  say number 222\n"<<flush;
+       a.controlSayNumber(222);
+      log << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
+	 log<<"==================================================\n"<<flush;
+     a.StreamFile("/tmp/testagi");
+a.hangupcurrentchanel();
+log.close();
+exit(0);
 }

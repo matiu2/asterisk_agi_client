@@ -2,7 +2,7 @@ agi_request: testagi
 agi_channel: SIP/freephonie_outbound-00000000
 agi_language: en
 agi_type: SIP
-agi_uniqueid: 1356681846.0
+agi_uniqueid: 1356896981.0
 agi_version: 1.8.13.1~dfsg-1
 agi_callerid: 0080471
 agi_calleridname: 0080471
@@ -17,7 +17,13 @@ agi_extension: 0715551234
 agi_priority: 3
 agi_enhanced: 0.0
 agi_accountcode: 
-agi_threadid: -1263871120
+agi_threadid: -1263801488
 
 200 result=0
 200 result=0
+200 result=6
+200 result=0
+200 result=6
+200 result=0 endpos=3335922
+200 result=1
+

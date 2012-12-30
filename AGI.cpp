@@ -3,14 +3,15 @@
 #include <iterator>
 #include <algorithm>
 #include <unordered_map>
-
-namespace AGI {
+#include <unistd.h>
 
 const std::map<Code, std::string> BadCode::code2msg = {
     {510, "Invalid or unknown command"},
     {511, "Command Not Permitted on a dead channel"},
     {520, "End of proper usage"}
 };
+
+
 
 int Protocol::getResult() {
     /// Get's the code for a response and fast forwards the stream
@@ -93,6 +94,7 @@ void Protocol::readConfig() {
 }
 
 void Protocol::answer() {
+    _nbrcommandsent++;
     log << "Sending 'answer' command..." << std::flush;
     out << "ANSWER\n";
     int result = getResult();
@@ -103,7 +105,10 @@ void Protocol::answer() {
         throw BadResult(msg.str());
     }
 }
+Protocol::ChannelStatus Protocol::currentchannelStatus() {
 
+    return (ChannelStatus) channelStatus("");
+}
 Protocol::ChannelStatus Protocol::channelStatus(const std::string& channelName) {
     log << "CHANNEL STATUS " << channelName << "..." << std::flush;
     out << "CHANNEL STATUS " << channelName << '\n';
@@ -116,6 +121,13 @@ Protocol::ChannelStatus Protocol::channelStatus(const std::string& channelName) 
         throw BadResult(msg.str());
     }
     return (ChannelStatus) result;
+}
+int Protocol::StreamFile(string fileName)
+{
+    _nbrcommandsent++;
+log<< "\n streaming file "<<fileName<<".\n"<<flush;
+out <<"STREAM FILE "+fileName+" \"\"\n"<<flush ;
+return getResult();
 }
 
 Digit Protocol::controlStreamFile(
@@ -201,6 +213,7 @@ Digit Protocol::controlStreamFile(
 }
 
 void Protocol::databaseDel(const std::string& family, const std::string& key) {
+    _nbrcommandsent++;
     log << "DATABASE DEL " << family << ' ' << key << "..." << std::flush;
     out << "DATABASE DEL " << family << ' ' << key << '\n';
     int result = getResult();
@@ -211,5 +224,103 @@ void Protocol::databaseDel(const std::string& family, const std::string& key) {
         throw BadResult(msg.str());
     }
 }
-
+int Protocol::recordFile(string fileName,string format, int maxtime, int escseq)
+{
+    _nbrcommandsent++;
+printf("RECORD FILE /tmp/testagi gsm 1234 3000\n");
+out<<"RECORD FILE"<<fileName<<format<<escseq <<" "<<maxtime <<" \n";
+return getResult();
 }
+int Protocol::SayNumber(int thenumber)
+{
+log<< "\n send asterisk a saynumber command: "<<thenumber<<".\n"<<flush;
+  out<<"SAY NUMBER "<<thenumber << " \"\"\n"<<flush ;
+return getResult();
+sleep(3);// wait so asterisk finish the command
+}
+int Protocol::GetDigit(int timeout)
+{
+log<< "\n send asterisk agetdit  with timeout: "<<timeout<<".\n"<<flush;
+
+  out<<"WAIT FOR DIGIT "<<timeout << "\n"<<flush ;
+return getResult()-48;
+}
+int Protocol::Getnumber3Digit(int timeout)
+{
+int a,b,c, number;
+a=GetDigit(timeout);
+b=GetDigit(timeout);
+c=GetDigit(timeout);
+
+number=100*a+10*b+ c;
+return number ;
+}
+int Protocol::hangupcurrentchanel()
+{
+  return (hangupchanel(""));
+}
+int Protocol::hangupchanel(const std::string& channelName)
+{
+    _nbrcommandsent++;
+    out<< "HANGUP "<< channelName <<" \n"<<flush ;
+    int result = getResult();
+    if (result == -1)
+        throw BadResult("CONTROL STREAM FILE got result of -1");
+    else
+        return result;
+
+return getResult();
+}
+
+Digit Protocol::controlSayNumber(    int thenumber) {
+    _nbrcommandsent++;
+    /**
+     * control stream file
+     *
+     * Usage: CONTROL STREAM FILE <filename> <escape digits> [skipms] [ffchar] [rewchr] [pausechr]
+     *
+     * Send the given file, allowing playback to be controled by the given digits, if any.
+     *
+     * Use double quotes for the digits if you wish none to be permitted.
+     *
+     * If <skipms> is provided then the audio will seek to sample offset before play starts.
+     *
+     * <ffchar> and <rewchar? default to * and # respectively.
+     *
+     * Remember, the file extension must not be included in the filename.
+     *
+     * Returns:
+     * failure: 200 result=-1
+     * failure on open: 200 result=0
+     * success: 200 result=0
+     * digit pressed: 200 result=<digit>
+     *
+     * <digit> is the ascii code for the digit pressed.
+     *
+     * NOTE: Unlike STREAM FILE, CONTROL STREAM FILE doesn't return the stream position when streaming stopped ('endpos')
+     *
+     **/
+    out <<"SAY NUMBER "<<thenumber << " \"\"\n"<<flush ;
+    // Read the reply
+    int result = getResult();
+    if (result == -1)
+        throw BadResult("CONTROL STREAM FILE got result of -1");
+    else
+        return result;
+}
+
+ ostream& operator <<(std::ostream& os, const Protocol& Protocol) {
+     os<<" dump incoming call information";
+    os << "agi_request: " << Protocol._config.request << endl;
+     os << "agi_channel: " << Protocol._config.channel << endl;
+     os << "agi_lang: " << Protocol._config.language << endl;
+     os << "agi_type: " << Protocol._config.type << endl;
+     os << "agi_callerid: " << Protocol._config.callerid << endl;
+     os << "agi_dnid: " << Protocol._config.dnid << endl;
+     os << "agi_context: " << Protocol._config.context << endl;
+     os << "agi_extension: " << Protocol._config.extension << endl;
+     os << "agi_priority: " << Protocol._config.priority << endl;
+     os << "I have processed "<< Protocol._nbrcommandsent<<endl;
+     os << "I had :'' "<< Protocol._nbrcommandfail<<"'failures so far"<<endl;
+    return os;
+};
