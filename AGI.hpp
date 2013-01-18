@@ -93,12 +93,16 @@ struct Config {
     std::string accountcode;
     std::string threadid;
 };
+class AsteriskCallProxy;
 class Command{
-/* this class shoud only have one function doing input output operation 
+/* this class shoud only have one function doing input output operation
 the fct: Execute will operate thru the AsteriskCallProxy on the asterisk server
 it should throw exceptions if anything fails
 */
+    private:
+
 public:
+    AsteriskCallProxy& callsrv;
     Command();
    virtual  void  Execute();
 

@@ -325,22 +325,12 @@ Digit AsteriskCallProxy::controlSayNumber(    int thenumber) {
     return os;
 };
  void Command::Execute(){
-     /// this function shows how to use private member of protocole class
-     ofstream mylogfile;
-   mylogfile.open ("/tmp/agireports.txt");
-    ofstream tosrvlogfile;
-   tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
-     AsteriskCallProxy a(cin, cout,mylogfile);
-cout <<a._nbrcommandok ;
+
+cout <<callsrv._nbrcommandok ;
 
  };
  void CommandSay::Execute(){
-     /// this function shows how to use private member of protocole class
-     ofstream mylogfile;
-   mylogfile.open ("/tmp/agireports.txt");
-    ofstream tosrvlogfile;
-   tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
-     AsteriskCallProxy a(cin, cout,mylogfile);
-cout <<a._nbrcommandok ;
+// demo using the private variable of the callsrv so we can use it's in out log next and check call setting
+cout <<callsrv._nbrcommandok ;
 
  };
