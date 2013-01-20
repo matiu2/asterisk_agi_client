@@ -107,11 +107,16 @@ public:
    virtual  void  Execute();
 
 };
-class CommandSay: public Command {
+class CommandSayNumber: public Command {
 public:
-    CommandSay();
+    CommandSayNumber( AsteriskCallProxy& srv, int inum) :  callsrv(srv), thenumber(inum) {}
+    // thenumber doesn't have to be set in contructor but it has to be set before execute is called
      void  Execute();
-
+private:
+     AsteriskCallProxy& callsrv;
+     int thenumber ; // number read to
+};
+class CommandgetResult: public Command {
 };
 
 class AsteriskCallProxy {
@@ -126,7 +131,7 @@ class AsteriskCallProxy {
      **/
 
     friend Command ;
-    friend CommandSay;
+    friend CommandSayNumber;
 public:
     enum ChannelStatus {
         downAvailable=0, // Channel is down and available
