@@ -1,9 +1,9 @@
 /** \file  /usr/share/asterisk/agi-bin/hellowithClass.cpp
 *    Description:  demo code for a call handling prg for asterisk basic agi functions
-the  prg sends "orders to asterisk by writting AGI COMMANDS STREAM FILE, SEND IMAGE.... on the std ouput 
-asterisk will then reply on stdin of the prg  if command was succefull or failed see fct checkresult() has to be called after each call to asterisk 
- Usage: 
-- Create an AGI  in /var/lib/asterisk/agi-bin, i.e.: compile with g++ hellowithClass.cpp  -o testagi 
+the  prg sends "orders to asterisk by writting AGI COMMANDS STREAM FILE, SEND IMAGE.... on the std ouput
+asterisk will then reply on stdin of the prg  if command was succefull or failed see fct checkresult() has to be called after each call to asterisk
+ Usage:
+- Create an AGI  in /var/lib/asterisk/agi-bin, i.e.: compile with g++ hellowithClass.cpp  -o testagi
 
 or in: /usr/share/asterisk/agi-bin
 - set permission: chown asterisk:asterisk /var/lib/asterisk/agi-bin/testagi
@@ -11,7 +11,7 @@ or in: /usr/share/asterisk/agi-bin
 rm /tmp/agireports.txt ;rm -rvf build/ ; mkdir build ; cd build ; cmake .. ; make testagiwithClass ; cd .. ; cp build/testagiwithClass ./testagi ; chown asterisk:asterisk ./testagi
 
 ./testagi<inputs
-- Call using EAGI from your dialplan: exten => 100,1,EAGI(restagi) 
+- Call using EAGI from your dialplan: exten => 100,1,EAGI(restagi)
 you can debug this agi script:
 http://astbook.asteriskdocs.org/en/2nd_Edition/asterisk-book-html-chunk/asterisk-CHP-9-SECT-5.html
 Debugging from the Operating System
@@ -26,13 +26,13 @@ As mentioned above, you should be able to run your program directly from the ope
 
 Trying your program directly from the operating system may help you to more easily spot bugs in your program.
 you can automate this runing ./testagi <inputs
-debian-asterisk:/usr/share/asterisk/agi-bin# cat inputs 
+debian-asterisk:/usr/share/asterisk/agi-bin# cat inputs
  agi_test:1
 
 200 response=1
 
 
-debian-asterisk:/usr/share/asterisk/agi-bin# 
+debian-asterisk:/usr/share/asterisk/agi-bin#
  *\version  1.0
  *\date 01/12/12 10:06:50
  *       Revision:  none
@@ -76,41 +76,41 @@ typedef unsigned char Digit;
 
 
 
-int main () {
-try{
-  ofstream mylogfile;
-mylogfile.open ("/tmp/agireports.txt");
- ofstream tosrvlogfile;
-tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
-  AsteriskCallProxy a(cin, cout,mylogfile);
-    a.readConfig();
-    Command* anOrder ;
-    anOrder= new CommandSayNumber(a, 111);
-    anOrder->Execute();
-    mylogfile<<a;
-    using std::cerr;
-    using std::endl;
-mylogfile<<" answer call now\n"<<flush;
-    a.answer();
-    mylogfile<<" \n controlStreamFile\n"<<flush;
- //     a.StreamFile("/tmp/testagi");
-    //a.controlStreamFile("/tmp/testagi");
-    mylogfile<<" \n now: say number 1111\n"<<flush;
-    a.controlSayNumber(111);
-    std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
-       mylogfile<<" \nnow:  say number 222\n"<<flush;
-       a.controlSayNumber(222);
-       std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
-	 mylogfile<<"==================================================\n"<<flush;
-     a.StreamFile("/tmp/testagi");
-//a.hangupcurrentchanel(); does not work on result
-mylogfile.close();
-exit(0);
+int main ()
+{
+    try {
+        ofstream mylogfile;
+        mylogfile.open ("/tmp/agireports.txt");
+        ofstream tosrvlogfile;
+        tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
+        AsteriskCallProxy a(cin, cout,mylogfile);
+        a.readConfig();
+        Command* anOrder ;
+        anOrder= new CommandSayNumber(a, 111);
+        anOrder->Execute();
+        mylogfile<<a;
+        using std::cerr;
+        using std::endl;
+        mylogfile<<" answer call now\n"<<flush;
+        a.answer();
+        mylogfile<<" \n controlStreamFile\n"<<flush;
+        //     a.StreamFile("/tmp/testagi");
+        //a.controlStreamFile("/tmp/testagi");
+        mylogfile<<" \n now: say number 1111\n"<<flush;
+        a.controlSayNumber(111);
+        std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
+        mylogfile<<" \nnow:  say number 222\n"<<flush;
+        a.controlSayNumber(222);
+        std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
+        mylogfile<<"==================================================\n"<<flush;
+        a.StreamFile("/tmp/testagi");
+        //a.hangupcurrentchanel(); does not work on result
+        mylogfile.close();
+        exit(0);
+    } catch( exception e ) {
+        exit(0);
+    }       // your handler
 }
-catch( exception e ) {
-exit(0);
-}       // your handler
-    }
 /*
 ancien main
 int resultcode=0;

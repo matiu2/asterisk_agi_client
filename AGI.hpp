@@ -48,12 +48,15 @@
 using namespace std;
 typedef unsigned short Code;
 typedef unsigned char Digit;
-struct Error : std::runtime_error { Error(const std::string& msg) : std::runtime_error(msg) {}
-                                 };
-struct BadResult : Error {    BadResult(const std::string& msg) : Error(msg) {}
-                         };
-struct BadParse : Error {     BadParse(const std::string& msg) : Error(msg) {}
-                        };
+struct Error : std::runtime_error {
+    Error(const std::string& msg) : std::runtime_error(msg) {}
+};
+struct BadResult : Error {
+    BadResult(const std::string& msg) : Error(msg) {}
+};
+struct BadParse : Error {
+    BadParse(const std::string& msg) : Error(msg) {}
+};
 
 
 struct BadCode : Error {
@@ -94,27 +97,27 @@ struct Config {
     std::string threadid;
 };
 class AsteriskCallProxy;
-class Command{
-/* this class shoud only have one function doing input output operation
-the fct: Execute will operate thru the AsteriskCallProxy on the asterisk server
-it should throw exceptions if anything fails
-*/
-    private:
+class Command {
+    /* this class shoud only have one function doing input output operation
+    the fct: Execute will operate thru the AsteriskCallProxy on the asterisk server
+    it should throw exceptions if anything fails
+    */
+private:
 
 public:
     AsteriskCallProxy& callsrv;
     Command();
-   virtual  void  Execute();
+    virtual  void  Execute();
 
 };
 class CommandSayNumber: public Command {
 public:
     CommandSayNumber( AsteriskCallProxy& srv, int inum) :  callsrv(srv), thenumber(inum) {}
     // thenumber doesn't have to be set in contructor but it has to be set before execute is called
-     void  Execute();
+    void  Execute();
 private:
-     AsteriskCallProxy& callsrv;
-     int thenumber ; // number read to
+    AsteriskCallProxy& callsrv;
+    int thenumber ; // number read to
 };
 class CommandgetResult: public Command {
 };
@@ -162,47 +165,55 @@ public:
     ChannelStatus currentchannelStatus();
     int Getnumber3Digit(int timeout);
     int recordFile(string, string, int , int );
-        Digit controlSayNumber(int);
-     int hangupcurrentchanel();
-      int hangupchanel(const std::string& channelName);
-        void databaseDel(const std::string& family, const std::string& key);
+    Digit controlSayNumber(int);
+    int hangupcurrentchanel();
+    int hangupchanel(const std::string& channelName);
+    void databaseDel(const std::string& family, const std::string& key);
 
 
     Digit controlStreamFile(
         const std::string& filename,
-        const std::set<Digit>& digits={},
+        const std::set<Digit>& digits= {},
         int skipms=0,
         char ffchar='*',
         char rewchar='#',
         char pausechar=0
     );
- int StreamFile(string filename);
- /*! \fn void StreamFile(string filename)
- * \brief will ask asterisk to play the file.
- * \param filename a complete path of the file .
- * \return a void if all ok.throws exception if failed to get the comand executed by asterisk
- **/
-int GetDigit(int timeout );
- /*! \fn int GetDigit(int timeout );
- * \brief will ask asterisk to read a digit dtmf from user
- * \param timeout a timeout in ms .
- * \return the ascii code of input ok.throws exception if failed to get the comand executed by asterisk
-*/
-int SendText(string);
-int SendImage(string );
-int SayNumber(int);
-/*! \fnint SayNumber(int anyint);
-* \brief will ask asterisk to read a digit dtmf from usersk
-* \param anyint any int asterisk will read thousands... if need to read the number to user  .
-* \return  void if all ok.throws exception if failed to get the comand executed by asterisk
-*/
+    int StreamFile(string filename);
+    /*! \fn void StreamFile(string filename)
+    * \brief will ask asterisk to play the file.
+    * \param filename a complete path of the file .
+    * \return a void if all ok.throws exception if failed to get the comand executed by asterisk
+    **/
+    int GetDigit(int timeout );
+    /*! \fn int GetDigit(int timeout );
+    * \brief will ask asterisk to read a digit dtmf from user
+    * \param timeout a timeout in ms .
+    * \return the ascii code of input ok.throws exception if failed to get the comand executed by asterisk
+    */
+    int SendText(string);
+    int SendImage(string );
+    int SayNumber(int);
+    /*! \fnint SayNumber(int anyint);
+    * \brief will ask asterisk to read a digit dtmf from usersk
+    * \param anyint any int asterisk will read thousands... if need to read the number to user  .
+    * \return  void if all ok.throws exception if failed to get the comand executed by asterisk
+    */
 
 
 
-    const Config& config() { return _config; }  
-    int nbrcommandsent(){ return _nbrcommandsent;}
-    int nbrcommandok() { return _nbrcommandok;}
-    int nbrcommandfail() { return _nbrcommandfail;}
+    const Config& config() {
+        return _config;
+    }
+    int nbrcommandsent() {
+        return _nbrcommandsent;
+    }
+    int nbrcommandok() {
+        return _nbrcommandok;
+    }
+    int nbrcommandfail() {
+        return _nbrcommandfail;
+    }
     friend ostream& operator<< (ostream& stream, const AsteriskCallProxy& AsteriskCallProxy);
 };
 #endif // AGI_H
