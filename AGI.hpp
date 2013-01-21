@@ -74,6 +74,7 @@ struct BadCode : Error {
     Code code;
     BadCode(Code aCode) : Error(doCode2Msg(aCode)), code(aCode) {}
 };
+
 struct Config {
     std::string request;
     std::string channel;
@@ -96,45 +97,12 @@ struct Config {
     std::string accountcode;
     std::string threadid;
 };
-class AsteriskCallProxy;
-class Command {
-    /* this class shoud only have one function doing input output operation
-    the fct: Execute will operate thru the AsteriskCallProxy on the asterisk server
-    it should throw exceptions if anything fails
-    */
-private:
 
-public:
-    AsteriskCallProxy& callsrv;
-    Command();
-    virtual  void  Execute();
-
-};
-class CommandSayNumber: public Command {
-public:
-    CommandSayNumber( AsteriskCallProxy& srv, int inum) :  callsrv(srv), thenumber(inum) {}
-    // thenumber doesn't have to be set in contructor but it has to be set before execute is called
-    void  Execute();
-private:
-    AsteriskCallProxy& callsrv;
-    int thenumber ; // number read to
-};
-class CommandgetResult: public Command {
-};
+namespace Command {
+    class Base;
+}
 
 class AsteriskCallProxy {
-    /*
-     *this class is  a proxy holding privately connectors (in out...) to the actual call on the asterisk server
-     *it also holds information related to the state of the call chanelStatus.
-     *command should be friend of this class to operate on it's connectors(private).
-     *Commands will be holding a reference to their target asterisk server CommandSay(AsteriskCallProxy)
-     * or  this class may provide connection thru operators << and >>
-     *to troubleshoot your app you can replace this class  by a mock class that logs to file all commands  and simulate answers.
-     *you may use a Factory to create all Command Objects behind actual fonctions
-     **/
-
-    friend Command ;
-    friend CommandSayNumber;
 public:
     enum ChannelStatus {
         downAvailable=0, // Channel is down and available
@@ -156,11 +124,12 @@ private:
         _nbrcommandok = 0,
         _nbrcommandfail =0;
 
+    friend class Command::Base;
 public:
     AsteriskCallProxy(std::istream& aIn, std::ostream& aOut, std::ostream& aLog) : in(aIn), out(aOut), log(aLog) {}
-    int getResult();
     void readConfig();
     void answer();
+    int getResult();
     ChannelStatus channelStatus(const std::string& channelName);
     ChannelStatus currentchannelStatus();
     int Getnumber3Digit(int timeout);
@@ -216,4 +185,42 @@ public:
     }
     friend ostream& operator<< (ostream& stream, const AsteriskCallProxy& AsteriskCallProxy);
 };
+
+namespace Command {
+
+    class Base {
+        /* this class shoud only have one function doing input output operation
+        the fct: Execute will operate thru the AsteriskCallProxy on the asterisk server
+        it should throw exceptions if anything fails
+        */
+    private:
+        AsteriskCallProxy& _proxy;
+        int _result = -1;
+    protected:
+        std::istream& in = _proxy.in;
+        std::ostream& out = _proxy.out;
+        std::ostream& log = _proxy.log;
+        virtual void checkResult();
+    public:
+        Base(AsteriskCallProxy& proxy) : _proxy(proxy) {}
+        virtual ~Base() {} // http://www.parashift.com/c++-faq/virtual-dtors.html
+        AsteriskCallProxy& proxy() { return _proxy; }
+        virtual Base& operator ()() { return *this; }
+        int result() const { return _result; }
+        operator int() const { return result(); }
+    };
+
+    class SayNumber: public Base {
+    public:
+        SayNumber(AsteriskCallProxy& proxy, int number) :  Base(proxy), _number(number) {}
+        virtual SayNumber& operator ()();
+        int number() const { return _number; }
+    protected:
+        virtual void checkResult();
+    private:
+        int _number;
+    };
+
+} // namespace Command
+
 #endif // AGI_H

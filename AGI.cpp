@@ -11,10 +11,57 @@ const std::map<Code, std::string> BadCode::code2msg = {
     {520, "End of proper usage"}
 };
 
+namespace Command {
 
-
-int AsteriskCallProxy::getResult()
+void Base::checkResult()
 {
+    _result = proxy().getResult();
+}
+
+SayNumber& SayNumber::operator() ()
+{
+    log << proxy().nbrcommandok() ; // NOTE(matiu): Don't know why this is here
+    /**
+     * control stream file
+     *
+     * Usage: CONTROL STREAM FILE <filename> <escape digits> [skipms] [ffchar] [rewchr] [pausechr]
+     *
+     * Send the given file, allowing playback to be controled by the given digits, if any.
+     *
+     * Use double quotes for the digits if you wish none to be permitted.
+     *
+     * If <skipms> is provided then the audio will seek to sample offset before play starts.
+     *
+     * <ffchar> and <rewchar? default to * and # respectively.
+     *
+     * Remember, the file extension must not be included in the filename.
+     *
+     * Returns:
+     * failure: 200 result=-1
+     * failure on open: 200 result=0
+     * success: 200 result=0
+     * digit pressed: 200 result=<digit>
+     *
+     * <digit> is the ascii code for the digit pressed.
+     *
+     * NOTE: Unlike STREAM FILE, CONTROL STREAM FILE doesn't return the stream position when streaming stopped ('endpos')
+     *
+     **/
+    out << "SAY NUMBER " << _number << " \"\"\n"<<flush ;
+    // Read the reply
+    checkResult();
+    return *this;
+}
+
+void SayNumber::checkResult() {
+    Base::checkResult();
+    if (result() == -1)
+        throw BadResult("CONTROL STREAM FILE got result of -1");
+}
+
+} // namespace Command
+
+int AsteriskCallProxy::getResult() {
     /// Get's the code for a response and fast forwards the stream
     /// to the end of relult=
     // Multiline response looks like:
@@ -300,48 +347,4 @@ ostream& operator <<(std::ostream& os, const AsteriskCallProxy& AsteriskCallProx
     os << "I had :'' "<< AsteriskCallProxy._nbrcommandfail<<"'failures so far"<<endl;
     return os;
 };
-void Command::Execute()
-{
 
-    cout <<callsrv._nbrcommandok ;
-
-};
-void CommandSayNumber::Execute()
-{
-    // demo using the private variable of the callsrv so we can use it's in out log next and check call setting
-    cout <<callsrv._nbrcommandok ;
-    /**
-     * control stream file
-     *
-     * Usage: CONTROL STREAM FILE <filename> <escape digits> [skipms] [ffchar] [rewchr] [pausechr]
-     *
-     * Send the given file, allowing playback to be controled by the given digits, if any.
-     *
-     * Use double quotes for the digits if you wish none to be permitted.
-     *
-     * If <skipms> is provided then the audio will seek to sample offset before play starts.
-     *
-     * <ffchar> and <rewchar? default to * and # respectively.
-     *
-     * Remember, the file extension must not be included in the filename.
-     *
-     * Returns:
-     * failure: 200 result=-1
-     * failure on open: 200 result=0
-     * success: 200 result=0
-     * digit pressed: 200 result=<digit>
-     *
-     * <digit> is the ascii code for the digit pressed.
-     *
-     * NOTE: Unlike STREAM FILE, CONTROL STREAM FILE doesn't return the stream position when streaming stopped ('endpos')
-     *
-     **/
-    callsrv.out <<"SAY NUMBER "<<thenumber << " \"\"\n"<<flush ;
-    // Read the reply
-    int result = getResult();
-    if (result == -1)
-        throw BadResult("CONTROL STREAM FILE got result of -1");
-    else
-        return result;
-
-};

@@ -85,9 +85,11 @@ int main ()
         tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
         AsteriskCallProxy a(cin, cout,mylogfile);
         a.readConfig();
-        Command* anOrder ;
-        anOrder= new CommandSayNumber(a, 111);
-        anOrder->Execute();
+        {   // Scope brackets so that compiler can throw away say111 after it's used..
+            Command::SayNumber say111(a, 111);
+            say111();
+            mylogfile << "Result of saying 111: " << say111 << std::endl;
+        }
         mylogfile<<a;
         using std::cerr;
         using std::endl;
