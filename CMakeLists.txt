@@ -4,4 +4,6 @@ PROJECT(AGI)
 
 ADD_DEFINITIONS(-std=c++11 -Wall -Wextra)
 
-ADD_EXECUTABLE(agi AGI.cpp AGIMain.cpp)
+add_subdirectory(agi_proxy)
+
+ADD_EXECUTABLE(agi agi_proxy main.cpp)
