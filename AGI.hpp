@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <map>
+#include <memory>
 #include <set>
 #include <stdio.h>
 #include <cstdlib>
@@ -48,16 +49,18 @@
 using namespace std;
 typedef unsigned short Code;
 typedef unsigned char Digit;
+
 struct Error : std::runtime_error {
     Error(const std::string& msg) : std::runtime_error(msg) {}
 };
+
 struct BadResult : Error {
     BadResult(const std::string& msg) : Error(msg) {}
 };
+
 struct BadParse : Error {
     BadParse(const std::string& msg) : Error(msg) {}
 };
-
 
 struct BadCode : Error {
     static const std::map<Code, std::string> code2msg;
@@ -207,6 +210,7 @@ namespace Command {
         AsteriskCallProxy& proxy() { return _proxy; }
         virtual Base& operator ()() { return *this; }
         int result() const { return _result; }
+        /// This is so you can output the result easily in streams
         operator int() const { return result(); }
     };
 
@@ -222,5 +226,19 @@ namespace Command {
     };
 
 } // namespace Command
+
+/// Experimental command runner class, handles memory management
+class CommandRunner {
+public:
+    /// Just call like: myCommandRunner(new SomeCommand(proxy, arg1, arg2))
+    Command::Base* operator()(Command::Base* command) {
+        _last_command = std::unique_ptr<Command::Base>(command);
+        (*command)();
+        return command;
+    }
+    Command::Base* lastCommand() {return _last_command.get();}
+private:
+    std::unique_ptr<Command::Base> _last_command = nullptr;
+};
 
 #endif // AGI_H

@@ -36,9 +36,7 @@ SayNumber& SayNumber::operator() ()
      *
      * Remember, the file extension must not be included in the filename.
      *
-     * Returns:
-     * failure: 200 result=-1
-     * failure on open: 200 result=0
+     * Result:
      * success: 200 result=0
      * digit pressed: 200 result=<digit>
      *
@@ -54,9 +52,15 @@ SayNumber& SayNumber::operator() ()
 }
 
 void SayNumber::checkResult() {
+    // failure: 200 result=-1
+    // failure on open: 200 result=0
     Base::checkResult();
-    if (result() == -1)
-        throw BadResult("CONTROL STREAM FILE got result of -1");
+    switch (result()) {
+        case -1:
+            throw BadResult("CONTROL STREAM FILE failed");
+        case 0:
+            throw BadResult("CONTROL STREAM FILE failure on open");
+    };
 }
 
 } // namespace Command

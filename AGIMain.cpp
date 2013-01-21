@@ -85,11 +85,6 @@ int main ()
         tosrvlogfile.open ("/tmp/CommandsSentToAsterisk.txt");
         AsteriskCallProxy a(cin, cout,mylogfile);
         a.readConfig();
-        {   // Scope brackets so that compiler can throw away say111 after it's used..
-            Command::SayNumber say111(a, 111);
-            say111();
-            mylogfile << "Result of saying 111: " << say111 << std::endl;
-        }
         mylogfile<<a;
         using std::cerr;
         using std::endl;
@@ -99,10 +94,13 @@ int main ()
         //     a.StreamFile("/tmp/testagi");
         //a.controlStreamFile("/tmp/testagi");
         mylogfile<<" \n now: say number 1111\n"<<flush;
-        a.controlSayNumber(111);
+        CommandRunner run;
+        run(new Command::SayNumber(a, 111));
+        mylogfile << "Result of saying 111: " << *run.lastCommand() << std::endl;
         std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
         mylogfile<<" \nnow:  say number 222\n"<<flush;
-        a.controlSayNumber(222);
+        run(new Command::SayNumber(a, 222));
+        mylogfile << "Result of saying 222: " << *run.lastCommand() << std::endl;
         std::cerr << "Channel status: " << a.currentchannelStatus()<<endl<<flush;
         mylogfile<<"==================================================\n"<<flush;
         a.StreamFile("/tmp/testagi");
