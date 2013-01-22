@@ -1,6 +1,8 @@
 #include "proxy.hpp"
+#include "errors.hpp"
 
 #include <sstream>
+#include <unordered_map>
 
 namespace agi_proxy {
 
@@ -52,7 +54,7 @@ void Proxy::readConfig()
             std::stringstream msg;
             msg << "No setting found for '"
                 << name << "'";
-            throw BadParse(msg.str());
+            throw err::BadParse(msg.str());
         }
     }
 }
@@ -72,14 +74,14 @@ int Proxy::getResult()
     in >> code >> std::ws;
     log << code << std::endl << std::flush;
     if (code != 200)
-        throw BadCode(code);
+        throw err::BadCode(code);
     std::string resultLiteral;
     std::getline(in, resultLiteral, '=');
     if (resultLiteral != "result") {
         std::stringstream msg;
         msg << "Expected to find 'result' after code but got '"
             << resultLiteral << "' instead";
-        throw BadParse(msg.str());
+        throw err::BadParse(msg.str());
     }
     int result;
     in >> result;

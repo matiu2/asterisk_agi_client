@@ -1,5 +1,6 @@
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 #include "typedefs.hpp"
 
@@ -20,11 +21,11 @@ struct BadParse : Error {
 };
 
 struct BadCode : Error {
-    std::string doCode2Msg(Code aCode) {
+    std::string code2msg(Code aCode) {
         switch (aCode) {
-            510: return "Invalid or unknown command";
-            511: return "Command Not Permitted on a dead channel";
-            520: return "End of proper usage";
+            case 510: return "Invalid or unknown command";
+            case 511: return "Command Not Permitted on a dead channel";
+            case 520: return "End of proper usage";
         };
         std::stringstream msg("Unexpected Code: ");
         msg << aCode;
@@ -33,3 +34,6 @@ struct BadCode : Error {
     Code code;
     BadCode(Code aCode) : Error(code2msg(aCode)), code(aCode) {}
 };
+
+}
+}

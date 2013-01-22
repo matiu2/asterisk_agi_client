@@ -1,15 +1,15 @@
 /// Makes asterisk answer the phone
 #pragma once
 
-#include "../errors.hpp"
+#include "base.hpp"
 #include <sstream>
 
-namespace api_proxy {
+namespace agi_proxy {
 namespace command {
 
 class ChannelStatus: public Base {
 public:
-    enum ChannelStatus {
+    enum Status {
         downAvailable=0, // Channel is down and available
         downReserved=1,  // Channel is down, but reserved
         offHook=2,       // Channel is off hook
@@ -23,21 +23,24 @@ public:
 private:
     std::string _channelName;
 public:
-    ChannelStatus(AsteriskCallProxy& proxy, const std::string& channelName="") :  Base(proxy), _channelName(channelName) {}
+    ChannelStatus(Proxy& proxy, const std::string& channelName="") :  Base(proxy), _channelName(channelName) {}
     const std::string& channelName() const { return _channelName; }
-    ChannelStatus status() const { return _channelName; }
+    Status status() const { return (Status)result(); }
 protected:
     virtual void checkResult() {
-        Base::checkResult();
-        if ((result == -1) || (result > ChannelStatus::LAST))  {
+        int result = getResult();
+        if ((result == -1) || (result > Status::LAST))  {
             std::stringstream msg;
             msg << "CHANNEL STATUS command needs a result betweeen 0 and "
-                << ChannelStatus::LAST << ", but got " << result << " instead";
-            throw BadResult(msg.str());
+                << Status::LAST << ", but got " << result << " instead";
+            throw err::BadResult(msg.str());
         }
     }
     virtual const char* commandText() { return "CHANNEL STATUS"; }
-    virtual void addParams(std::ostream& out) { out << ' ' << _number; }
+    virtual void addParams(std::ostream& out) {
+        if (!_channelName.empty())
+            out << ' ' << _channelName;
+    }
 };
 
 }
