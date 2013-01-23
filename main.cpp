@@ -38,13 +38,16 @@ int main(int, char**) {
 
     // Set up the commands
     namespace cmd = agi_proxy::command;
-    std::vector<agi_proxy::CommandRunner> commands;
-    commands.emplace_back(new cmd::Answer(p));
-    commands.emplace_back(new cmd::SayNumber(p, 42));
-    commands.emplace_back(new cmd::ChannelStatus(p));
-    
-    // Run the commands
-    for (auto& command : commands) {
-        command();
-    }
+    agi_proxy::CommandRunner run;
+    run(new cmd::Answer(p));
+    run(new cmd::SayNumber(p, 42));
+    run(new cmd::ChannelStatus(p));
+
+    auto channel_status = dynamic_cast<cmd::ChannelStatus*>(run.lastCommand());
+
+    switch (channel_status->status()) {
+        case cmd::ChannelStatus::up: std::cout << "Channel is up: " << std::endl;
+    };
+    std::cout << "Channel Status is: " << channel_status->status() << std::endl;
+
 }
