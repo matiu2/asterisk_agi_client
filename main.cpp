@@ -41,13 +41,22 @@ int main(int, char**) {
     agi_proxy::CommandRunner run;
     run(new cmd::Answer(p));
     run(new cmd::SayNumber(p, 42));
+
+    // Different ways of getting the channel status
+
+    // 1. dynamic_cast
     run(new cmd::ChannelStatus(p));
+    auto status1 = dynamic_cast<cmd::ChannelStatus*>(run.lastCommand());
 
-    auto channel_status = dynamic_cast<cmd::ChannelStatus*>(run.lastCommand());
+    // 2. make your own pointer
+    cmd::ChannelStatus* status2=nullptr;
+    run(status2 = new cmd::ChannelStatus(p));
 
-    switch (channel_status->status()) {
-        case cmd::ChannelStatus::up: std::cout << "Channel is up: " << std::endl;
-    };
-    std::cout << "Channel Status is: " << channel_status->status() << std::endl;
+    // 3. just cast the result
+    run(new cmd::ChannelStatus(p));
+    auto status3 = (cmd::ChannelStatus::Status)run.lastCommand()->result();
 
+    std::cout << "Status 1: " << status1->status() << std::endl;
+    std::cout << "Status 2: " << status2->status() << std::endl;
+    std::cout << "Status 3: " << status3 << std::endl;
 }
